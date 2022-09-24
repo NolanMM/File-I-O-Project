@@ -26,7 +26,7 @@ void Open_exist_File()
 {
 	Print_List_Files("List of Files");
 	char file_name[1000];
-	printf("Please enter the file name you want to modify:");
+	printf("\nPlease enter the file name you want to modify:");
 	scanf("%s", file_name);
 	char* name_file = file_name;
 	FILE* fp;

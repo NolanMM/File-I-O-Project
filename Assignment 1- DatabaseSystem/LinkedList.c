@@ -48,9 +48,8 @@ void Save_List(link pn)
 {
 	char list_name[] = "List of Files";
 	FILE* fp;
-	fp = fopen(list_name, "a");
-	fprintf(fp,"%s\n", pn->Data.file_name_list);
-
+	fp = fopen("List of Files", "w+");
+	fprintf(fp, pn->Data.file_name_list);
 }
 
 

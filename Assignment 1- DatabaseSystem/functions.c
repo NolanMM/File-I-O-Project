@@ -45,20 +45,12 @@ Insert_function(const char* name_file)
 Delete_function(const char* name_file)
 {
 	FILE* fp;
-	fp = fopen(name_file, "a");
+	fp = fopen(name_file, "r");
 	char inputdata[1000];
+
 	// List of data
 	// Have to scanf and store all the data into a new list and modified it
-	do
-	{
-		int temp = fgetc(fp);
-		if (feof(fp))
-		{
-			break;
-		}
-		printf("%c", temp);
-	} while (1);
-
+	Print_List_Files(name_file);
 	printf("Input the Data you want to delete: \n");
 	scanf("%s", inputdata);
 }
@@ -75,7 +67,20 @@ Random_insert(const char* name_file)
 
 Store_Thefile(const char* name_file)
 {
+	FILE* fp;
+	fp = fopen(name_file, "r");
 
+	int temp;
+	InitQueue();
+	do
+	{
+		temp = fgetc(fp);
+		if (feof(fp))
+		{
+			break;
+		}
+		printf("%c", temp);
+	} while (1);
 }
 
 menu_function(int num,const char *name_file)
@@ -110,7 +115,7 @@ menu_function(int num,const char *name_file)
 		printf("************************************\n");
 		int choice;	// Take the choice from user to direct the program into the function
 
-		printf("PLease enter here:");
+		printf("\nPLease enter here:");
 		scanf("%d", &choice);
 
 		switch (choice)
