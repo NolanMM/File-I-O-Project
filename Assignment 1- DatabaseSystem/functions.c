@@ -67,11 +67,13 @@ Random_insert(const char* name_file)
 
 Store_Thefile(const char* name_file)
 {
+	InitQueue();
 	FILE* fp;
 	fp = fopen(name_file, "r");
-
 	int temp;
-	InitQueue();
+	link p;
+	p = (link)malloc(sizeof(Node));      //Create the Node for the message
+
 	do
 	{
 		temp = fgetc(fp);
@@ -174,6 +176,105 @@ void Print_List_Files(const char*file_name)
 	} while (1);
 }
 
+
+// Function returns an array that indicates the start of every quote in the file (number of characters from the start of the file)
+long int* fDataIndices(int numQuotes,const char*file_name)						//numQuotes is the number of quotes in .txt file
+{															//fquoteIndices returns a dereferenced pointer because we will return a pointer array
+	FILE* fp;												//define the file
+	errno_t err;											//used to detect issues with fopen_s
+
+	char c;                                                                     //tests for end of file
+	int i = 0;                                                                  //counts how many loops have been done to increment the array
+	long int* indexList = (long int*)malloc(numQuotes * sizeof(long int));		//this enables the creation of a dynamic array that will have enough space for an array of large numbers
+	char* bufIndex = (char*)malloc(numQuotes * sizeof(char));
+	int indices = 0;                                                            //counts how many characters into the file the 'cursor' is
+	if ((err = fopen_s(&fp, file_name, "r")) == 0)
+	{
+		while (fgets(bufIndex, sizeof(bufIndex), fp) != NULL) {	//fgets stops at \n characters and eof, so we can use it to grab one line at a time
+			if (bufIndex[0] == '\\' && bufIndex[1] == 'n') {		//fgets puts each character from the line into bufIndex, so if both element [0] and [1] are '%' then it is the start of a quote
+				indexList[i] = ftell(fp);						//ftell reads how many characters from the start of file to the 'cursor' so if the 'cursor' is at the begining of a file, thats the index
+				i++;											//move to find next quote index
+			}
+		}
+		indexList[i] = ftell(fp);		//set the eof as the last index, so we can find the quote length of the last quote
+		free(bufIndex);					//free the temporary array as we no longer need it
+		fclose(fp);						//close the file
+		return(indexList);				//return the array of indices
+	}
+	else
+	{	//error condition
+		printf("\n Error: Failed to open file");
+		fclose(fp);
+		return(-1);
+	}
+}
+
+int fnumData(const char*file_name)									// Function returns number of quotes in the file (only need to run once)
+{
+	FILE* fp;
+	errno_t err;
+	char c;
+	int counter = -1;
+
+	if ((err = fopen_s(&fp, file_name, "r")) == 0)
+	{
+		while ((c = fgetc(fp)) != EOF)
+		{
+			if (c == '\\')
+			{
+				if (fgetc(fp) == 'n')
+				{
+					counter++;
+				}
+			}
+		}
+		fclose(fp);
+		return(counter);
+	}
+	else
+	{
+		printf("\n Error: Failed to open file");
+		fclose(fp);
+		return(-1);
+	}
+}
+
+// Function returns the length of every quote in an array
+int* fDataLength(int numQuotes, long int* quoteIndices) // We have to find the start of the code in the file first
+{
+	int* qLen = (int*)malloc(numQuotes * sizeof(int));			//array of sizeof(int) times the number of quotes
+
+	for (int j = 0; j < numQuotes; j++) {						//for loop to create an array element for each quote that will store the length of that quote
+		qLen[j] = quoteIndices[j + 1] - quoteIndices[j] -2;	//qLen is the start of the quote ahead of current quote - start of current quote
+	}															//the minus 6 is because quoteIndices starts before the %%\n characters
+
+	return(qLen);
+}
+
+int GetMessageFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths)
+{
+	FILE* fp;					//define the file
+	errno_t err;				//used to detect issues with fopen_s
+	int i;						//for loop counter
+
+	if ((err = fopen_s(&fp, "FortuneCookies.txt", "r")) == 0) {	//test if file opens correctly
+
+		fseek(fp, quoteIndices[user_choose_the_order_of_data], SEEK_SET);		//moves 'cursor' to the start of the randomly chosen quote
+		for (i = 0; i < DataLength; i++) {					//now that iLen is the correct size lets set each element in buff to a character of the quote
+			buff[i] = fgetc(fp);
+		}
+		buff[i - 1] = '\0';								//all strings must end in a termination character
+		//this character has to be at element 140 or less, otherwise buff becomes corrupted
+
+		fclose(fp);
+		return(0);										//no need to return buff since we do it by reference
+	}
+	else {		//error condition
+		printf("\n Error: Failed to open file");
+		fclose(fp);
+		return(-1);
+	}
+}
 
 // Draft 
 /*

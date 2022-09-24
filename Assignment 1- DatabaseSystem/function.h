@@ -3,7 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <malloc.h>
-
+#include <errno.h>
+#include <time.h>
 Start_Stopfunction();
 Insert_function(const char* name_file);
 Delete_function(const char* name_file);
@@ -36,7 +37,8 @@ struct node {
 };
 
 //Queue Function Prototypes
-
+long int* fquoteIndices(int numQuotes, const char* file_name);
+int fnumQuotes(const char* file_name);
 void InitQueue(void);
 int IsQueueEmpty(void);
 void AddToQueue(link);
