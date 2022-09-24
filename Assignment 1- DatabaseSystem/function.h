@@ -5,6 +5,7 @@
 #include <malloc.h>
 #include <errno.h>
 #include <time.h>
+#define MAX_DATA_LENGTH 1000
 Start_Stopfunction();
 Insert_function(const char* name_file);
 Delete_function(const char* name_file);
@@ -37,8 +38,11 @@ struct node {
 };
 
 //Queue Function Prototypes
-long int* fquoteIndices(int numQuotes, const char* file_name);
-int fnumQuotes(const char* file_name);
+long int* fDataIndices(int numQuotes, const char* file_name);
+int fnumData(const char* file_name);
+int* fDataLength(int numQuotes, long int* quoteIndices);
+int GetDataFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths, const char* file_name);
+
 void InitQueue(void);
 int IsQueueEmpty(void);
 void AddToQueue(link);

@@ -51,8 +51,12 @@ Delete_function(const char* name_file)
 	// List of data
 	// Have to scanf and store all the data into a new list and modified it
 	Print_List_Files(name_file);
+	Store_Thefile(name_file);
+	Traveral();
 	printf("Input the Data you want to delete: \n");
 	scanf("%s", inputdata);
+
+	
 }
 
 Find_function(const char* name_file)
@@ -67,22 +71,44 @@ Random_insert(const char* name_file)
 
 Store_Thefile(const char* name_file)
 {
-	InitQueue();
-	FILE* fp;
-	fp = fopen(name_file, "r");
-	int temp;
-	link p;
-	p = (link)malloc(sizeof(Node));      //Create the Node for the message
+	// Initialize the variables
+	int  i, j;
+	int numDataLines;                    // Number of quotes in the file
+	long int LinesIndices;            // Array of quote locations in the file (index correspondes to quote number)
+	int* LineLengths;                // Array of quote lengths (index correspondes to quote number)
+	int* lengthList;
+	char testBuff[1000];  // Result of our getmessage function
+	srand(time(NULL));                // Seeds rand()
 
-	do
+	//node variables
+	link q, p;         //node p and q used to add and remove from queue               
+
+	//run these once to intialize them
+	numDataLines = fnumData(name_file);   // Number of Lines
+	lengthList = (int*)malloc(numDataLines * sizeof(int));;		// store the length of each lines	
+	LinesIndices = fDataIndices(numDataLines,name_file); // Index locations of the quotes
+	int o = 0;
+	for (int p = 0; p < numDataLines;p++)
 	{
-		temp = fgetc(fp);
-		if (feof(fp))
-		{
-			break;
+		LineLengths = fDataLength(numDataLines, LinesIndices,o );   // Length each lines in the data file
+		lengthList[p] = LineLengths;
+		o++;
+	}
+	p = (link)malloc(sizeof(Node));      //Create the Node for the message
+	InitQueue();                         //Initialize queue
+
+	for (j = 0; j < numDataLines; j++)              //Creating 'N' number of nodes
+	{
+		//Get the random message from the file
+		GetDataFromFile(testBuff, MAX_DATA_LENGTH, j, numDataLines, LinesIndices, lengthList[j],name_file);  // Later replace testBuff with 'node->msg.buff' which is a member of a node struct
+		strcpy(p->Data.file_name_list, testBuff);                  //store the quotes into the node
+		AddToQueue(p);                                      //adds node p to the queue
+		if (j + 1 != numDataLines) {                                     //adds new nodes based on how many the user wanted
+			p->pNext = malloc(sizeof(Node));                //mallocs new nodes only if this is the last loop so there isnt an extra
+			p = p->pNext;                                   //set p to point to the next element in the linked list
 		}
-		printf("%c", temp);
-	} while (1);
+	}
+	free(lengthList);
 }
 
 menu_function(int num,const char *name_file)
@@ -185,8 +211,8 @@ long int* fDataIndices(int numQuotes,const char*file_name)						//numQuotes is t
 
 	char c;                                                                     //tests for end of file
 	int i = 0;                                                                  //counts how many loops have been done to increment the array
-	long int* indexList = (long int*)malloc(numQuotes * sizeof(long int));		//this enables the creation of a dynamic array that will have enough space for an array of large numbers
-	char* bufIndex = (char*)malloc(numQuotes * sizeof(char));
+	long int* indexList = (long int)malloc(numQuotes * sizeof(long long int) * 100000);		//this enables the creation of a dynamic array that will have enough space for an array of large numbers
+	char* bufIndex = (char)malloc(numQuotes * sizeof(long long int) *100000);
 	int indices = 0;                                                            //counts how many characters into the file the 'cursor' is
 	if ((err = fopen_s(&fp, file_name, "r")) == 0)
 	{
@@ -201,63 +227,55 @@ long int* fDataIndices(int numQuotes,const char*file_name)						//numQuotes is t
 		fclose(fp);						//close the file
 		return(indexList);				//return the array of indices
 	}
-	else
-	{	//error condition
-		printf("\n Error: Failed to open file");
-		fclose(fp);
-		return(-1);
-	}
 }
 
 int fnumData(const char*file_name)									// Function returns number of quotes in the file (only need to run once)
 {
 	FILE* fp;
-	errno_t err;
 	char c;
-	int counter = -1;
+	int count = 0;  // Line counter (result)
+	// Open the file
+	fp = fopen(file_name, "r");
 
-	if ((err = fopen_s(&fp, file_name, "r")) == 0)
+	// Check if file exists
+	if (fp == NULL)
 	{
-		while ((c = fgetc(fp)) != EOF)
-		{
-			if (c == '\\')
-			{
-				if (fgetc(fp) == 'n')
-				{
-					counter++;
-				}
-			}
-		}
-		fclose(fp);
-		return(counter);
+		printf("Could not open file %s", file_name);
+		return 0;
 	}
-	else
-	{
-		printf("\n Error: Failed to open file");
-		fclose(fp);
-		return(-1);
-	}
+
+	// Extract characters from file and store in character c
+	for (c = getc(fp); c != EOF; c = getc(fp))
+		if (c == '\n') // Increment count if this character is newline
+			count = count + 1;
+
+	// Close the file
+	fclose(fp);
+	printf("The file %s has %d lines\n ", file_name, count);
+
+	return 0;
 }
 
 // Function returns the length of every quote in an array
 int* fDataLength(int numQuotes, long int* quoteIndices) // We have to find the start of the code in the file first
 {
-	int* qLen = (int*)malloc(numQuotes * sizeof(int));			//array of sizeof(int) times the number of quotes
-
-	for (int j = 0; j < numQuotes; j++) {						//for loop to create an array element for each quote that will store the length of that quote
-		qLen[j] = quoteIndices[j + 1] - quoteIndices[j] -2;	//qLen is the start of the quote ahead of current quote - start of current quote
+	int *qLen;
+	qLen = (int)malloc(numQuotes * sizeof(long long int) * 100000);//array of sizeof(int) times the number of quotes
+	int j;
+	for (j = 0; j < numQuotes; j++) {						//for loop to create an array element for each quote that will store the length of that quote
+		qLen[j] = quoteIndices[j + 1] - quoteIndices[j];	//qLen is the start of the quote ahead of current quote - start of current quote
 	}															//the minus 6 is because quoteIndices starts before the %%\n characters
 
 	return(qLen);
 }
 
-int GetMessageFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths)
+int GetDataFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths,const char*file_name)
 {
 	FILE* fp;					//define the file
 	errno_t err;				//used to detect issues with fopen_s
 	int i;						//for loop counter
 
-	if ((err = fopen_s(&fp, "FortuneCookies.txt", "r")) == 0) {	//test if file opens correctly
+	if ((err = fopen_s(&fp, file_name, "r")) == 0) {	//test if file opens correctly
 
 		fseek(fp, quoteIndices[user_choose_the_order_of_data], SEEK_SET);		//moves 'cursor' to the start of the randomly chosen quote
 		for (i = 0; i < DataLength; i++) {					//now that iLen is the correct size lets set each element in buff to a character of the quote
@@ -269,11 +287,7 @@ int GetMessageFromFile(char* buff, int DataLength, int user_choose_the_order_of_
 		fclose(fp);
 		return(0);										//no need to return buff since we do it by reference
 	}
-	else {		//error condition
-		printf("\n Error: Failed to open file");
-		fclose(fp);
-		return(-1);
-	}
+	
 }
 
 // Draft 
