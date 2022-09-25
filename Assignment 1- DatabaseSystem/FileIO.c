@@ -19,6 +19,7 @@ void Open_New_File()
 	FILE* fp;
 	fp = fopen(name_file, "a");
 	menu_function(2,name_file);
+	fclose(fp);
 	
 }
 
@@ -33,5 +34,6 @@ void Open_exist_File()
 	fp = fopen(name_file, "a");
 
 	menu_function(2,name_file);
+	fclose(fp);
 
 }

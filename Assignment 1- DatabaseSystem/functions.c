@@ -40,6 +40,9 @@ Insert_function(const char* name_file)
 	printf("Input the Data you want: \n");
 	scanf("%s", inputdata);
 	fprintf(fp, "%s\n", inputdata);
+
+	menu_function(2, name_file);
+
 }
 
 
@@ -92,13 +95,12 @@ Delete_function(const char* name_file)
 	Traveral_text();
 
 	int k = 0;
-	int h;
 
 	printf("\nPlease enter the order of data you want to delete:");
 	scanf("%s", &delete_text);
 	search(delete_text);
 	free(n);
-
+	menu_function(2, name_file);
 	fclose(fp);
 }
 
@@ -106,8 +108,54 @@ Find_function(const char* name_file)
 {
 	char* find_text;
 	printf("\nPlease enter the order of data you want to Find:");
+
+	int i = 0;
+	char(*n)[1000]; /* pointer to an array of 1000 chars */
+	FILE* fp;
+
+
+	fp = fopen(name_file, "r");
+
+	char delete_text[40];
+	link q;
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "ERROR\n");
+		return EXIT_FAILURE;
+	}
+
+	n = malloc(sizeof(*n));
+
+	if (n == NULL)
+	{
+		fprintf(stderr, "ERROR\n");
+		return EXIT_FAILURE;
+	}
+
+	while (fgets(n[i++], 1024, fp) != NULL) /* strcpy is redundant here,since we can just save in the buffer directly*/
+	{
+		n = realloc(n, (i + 1) * sizeof(*n)); /* realloc each time so you can store another string */
+
+		if (n == NULL)
+		{
+			fprintf(stderr, "ERROR\n");
+			return EXIT_FAILURE;
+		}
+	}
+
+
+	for (int j = 0; j < i - 1; j++)
+	{
+		q = (link)malloc(sizeof(Node));      //Create the Node for the message
+		strcpy(q->Data.file_name_list, n[j]);
+		AddToQueue(q);
+	}
+
 	scanf("%s", &find_text);
 	search(find_text);
+	menu_function(2, name_file);
+	fclose(fp);
 }
 
 Random_insert(const char* name_file)
