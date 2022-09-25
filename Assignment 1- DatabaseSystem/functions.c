@@ -237,12 +237,14 @@ void Print_List_Files(const char*file_name)
 	FILE* fp;
 	fp = fopen(file_name, "r");
 
+
 	int temp;
 	if ((fp = fopen(file_name, "r")) == NULL) {
 		printf("Error! opening file");
 		// Program exits if the file pointer returns NULL.
 		exit(1);
 	}
+	printf("Here is the list of file you be created\n");
 	do
 	{
 		temp = fgetc(fp);
