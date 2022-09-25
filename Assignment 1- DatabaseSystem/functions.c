@@ -42,26 +42,79 @@ Insert_function(const char* name_file)
 	fprintf(fp, "%s\n", inputdata);
 }
 
+
+
 Delete_function(const char* name_file)
 {
+	int i = 0;
+	char(*n)[1000]; /* pointer to an array of 1000 chars */
 	FILE* fp;
+
+
 	fp = fopen(name_file, "r");
-	char inputdata[1000];
 
-	// List of data
-	// Have to scanf and store all the data into a new list and modified it
-	Print_List_Files(name_file);
-	Store_Thefile(name_file);
-	Traveral();
-	printf("Input the Data you want to delete: \n");
-	scanf("%s", inputdata);
+	char delete_text[1000];
+	link q;
 
-	
+
+
+	if (fp == NULL)
+	{
+		fprintf(stderr, "ERROR\n");
+		return EXIT_FAILURE;
+	}
+
+	n = malloc(sizeof(*n));
+
+	if (n == NULL)
+	{
+		fprintf(stderr, "ERROR\n");
+		return EXIT_FAILURE;
+	}
+
+	while (fgets(n[i++], 1024, fp) != NULL) /* strcpy is redundant here,since we can just save in the buffer directly*/
+	{
+		n = realloc(n, (i + 1) * sizeof(*n)); /* realloc each time so you can store another string */
+
+		if (n == NULL)
+		{
+			fprintf(stderr, "ERROR\n");
+			return EXIT_FAILURE;
+		}
+	}
+
+	for (int j = 0; j < i - 1; j++)
+	{
+		q = (link)malloc(sizeof(Node));      //Create the Node for the message
+		strcpy(q->Data.line_text, n[j]);
+		AddToQueue(q);
+	}
+
+	Traveral_text();
+
+	int k = 0;
+	int h;
+
+	printf("\nPlease enter the order of data you want to delete:");
+	scanf("%s", &delete_text);
+
+
+
+
+	for ( h = 0; h < i - 1; h++)
+	{
+		printf("No.%d. Data is:  %s", h, n[h]);
+	}
+
+
+	free(n);
+
+	fclose(fp);
 }
 
 Find_function(const char* name_file)
 {
-
+	
 }
 
 Random_insert(const char* name_file)
@@ -69,47 +122,6 @@ Random_insert(const char* name_file)
 
 }
 
-Store_Thefile(const char* name_file)
-{
-	// Initialize the variables
-	int  i, j;
-	int numDataLines;                    // Number of quotes in the file
-	long int LinesIndices;            // Array of quote locations in the file (index correspondes to quote number)
-	int* LineLengths;                // Array of quote lengths (index correspondes to quote number)
-	int* lengthList;
-	char testBuff[1000];  // Result of our getmessage function
-	srand(time(NULL));                // Seeds rand()
-
-	//node variables
-	link q, p;         //node p and q used to add and remove from queue               
-
-	//run these once to intialize them
-	numDataLines = fnumData(name_file);   // Number of Lines
-	lengthList = (int*)malloc(numDataLines * sizeof(int));;		// store the length of each lines	
-	LinesIndices = fDataIndices(numDataLines,name_file); // Index locations of the quotes
-	int o = 0;
-	for (int p = 0; p < numDataLines;p++)
-	{
-		LineLengths = fDataLength(numDataLines, LinesIndices,o );   // Length each lines in the data file
-		lengthList[p] = LineLengths;
-		o++;
-	}
-	p = (link)malloc(sizeof(Node));      //Create the Node for the message
-	InitQueue();                         //Initialize queue
-
-	for (j = 0; j < numDataLines; j++)              //Creating 'N' number of nodes
-	{
-		//Get the random message from the file
-		GetDataFromFile(testBuff, MAX_DATA_LENGTH, j, numDataLines, LinesIndices, lengthList[j],name_file);  // Later replace testBuff with 'node->msg.buff' which is a member of a node struct
-		strcpy(p->Data.file_name_list, testBuff);                  //store the quotes into the node
-		AddToQueue(p);                                      //adds node p to the queue
-		if (j + 1 != numDataLines) {                                     //adds new nodes based on how many the user wanted
-			p->pNext = malloc(sizeof(Node));                //mallocs new nodes only if this is the last loop so there isnt an extra
-			p = p->pNext;                                   //set p to point to the next element in the linked list
-		}
-	}
-	free(lengthList);
-}
 
 menu_function(int num,const char *name_file)
 {
@@ -190,7 +202,6 @@ void Print_List_Files(const char*file_name)
 		// Program exits if the file pointer returns NULL.
 		exit(1);
 	}
-
 	do
 	{
 		temp = fgetc(fp);
@@ -200,38 +211,14 @@ void Print_List_Files(const char*file_name)
 		}
 		printf("%c", temp);
 	} while (1);
+	puts("");
 }
 
-
-// Function returns an array that indicates the start of every quote in the file (number of characters from the start of the file)
-long int* fDataIndices(int numQuotes,const char*file_name)						//numQuotes is the number of quotes in .txt file
-{															//fquoteIndices returns a dereferenced pointer because we will return a pointer array
-	FILE* fp;												//define the file
-	errno_t err;											//used to detect issues with fopen_s
-
-	char c;                                                                     //tests for end of file
-	int i = 0;                                                                  //counts how many loops have been done to increment the array
-	long int* indexList = (long int)malloc(numQuotes * sizeof(long long int) * 100000);		//this enables the creation of a dynamic array that will have enough space for an array of large numbers
-	char* bufIndex = (char)malloc(numQuotes * sizeof(long long int) *100000);
-	int indices = 0;                                                            //counts how many characters into the file the 'cursor' is
-	if ((err = fopen_s(&fp, file_name, "r")) == 0)
-	{
-		while (fgets(bufIndex, sizeof(bufIndex), fp) != NULL) {	//fgets stops at \n characters and eof, so we can use it to grab one line at a time
-			if (bufIndex[0] == '\\' && bufIndex[1] == 'n') {		//fgets puts each character from the line into bufIndex, so if both element [0] and [1] are '%' then it is the start of a quote
-				indexList[i] = ftell(fp);						//ftell reads how many characters from the start of file to the 'cursor' so if the 'cursor' is at the begining of a file, thats the index
-				i++;											//move to find next quote index
-			}
-		}
-		indexList[i] = ftell(fp);		//set the eof as the last index, so we can find the quote length of the last quote
-		free(bufIndex);					//free the temporary array as we no longer need it
-		fclose(fp);						//close the file
-		return(indexList);				//return the array of indices
-	}
-}
 
 int fnumData(const char*file_name)									// Function returns number of quotes in the file (only need to run once)
 {
 	FILE* fp;
+	
 	char c;
 	int count = 0;  // Line counter (result)
 	// Open the file
@@ -248,47 +235,11 @@ int fnumData(const char*file_name)									// Function returns number of quotes 
 	for (c = getc(fp); c != EOF; c = getc(fp))
 		if (c == '\n') // Increment count if this character is newline
 			count = count + 1;
-
 	// Close the file
 	fclose(fp);
-	printf("The file %s has %d lines\n ", file_name, count);
-
-	return 0;
+	return count;
 }
 
-// Function returns the length of every quote in an array
-int* fDataLength(int numQuotes, long int* quoteIndices) // We have to find the start of the code in the file first
-{
-	int *qLen;
-	qLen = (int)malloc(numQuotes * sizeof(long long int) * 100000);//array of sizeof(int) times the number of quotes
-	int j;
-	for (j = 0; j < numQuotes; j++) {						//for loop to create an array element for each quote that will store the length of that quote
-		qLen[j] = quoteIndices[j + 1] - quoteIndices[j];	//qLen is the start of the quote ahead of current quote - start of current quote
-	}															//the minus 6 is because quoteIndices starts before the %%\n characters
-
-	return(qLen);
-}
-
-int GetDataFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths,const char*file_name)
-{
-	FILE* fp;					//define the file
-	errno_t err;				//used to detect issues with fopen_s
-	int i;						//for loop counter
-
-	if ((err = fopen_s(&fp, file_name, "r")) == 0) {	//test if file opens correctly
-
-		fseek(fp, quoteIndices[user_choose_the_order_of_data], SEEK_SET);		//moves 'cursor' to the start of the randomly chosen quote
-		for (i = 0; i < DataLength; i++) {					//now that iLen is the correct size lets set each element in buff to a character of the quote
-			buff[i] = fgetc(fp);
-		}
-		buff[i - 1] = '\0';								//all strings must end in a termination character
-		//this character has to be at element 140 or less, otherwise buff becomes corrupted
-
-		fclose(fp);
-		return(0);										//no need to return buff since we do it by reference
-	}
-	
-}
 
 // Draft 
 /*

@@ -63,4 +63,17 @@ void Traveral(void)
 	}
 }
 
+void Traveral_text(void)
+{
+	int i = 0;
+	link pn = pHead;
+	while (pn != NULL) {
+		printf("No.%d. Data is:  %s\n",i, pn->Data.line_text);
+		pn = pn->pNext;
+		i++;
+	}
+}
+
+
+
 

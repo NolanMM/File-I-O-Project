@@ -6,14 +6,16 @@
 #include <errno.h>
 #include <time.h>
 #define MAX_DATA_LENGTH 1000
+#define MAX_TEXT_CHARACTERS 100000
+#define MAX_QUOTE_LENGTH 140
 Start_Stopfunction();
 Insert_function(const char* name_file);
 Delete_function(const char* name_file);
 Find_function(const char* name_file);
 Random_insert(const char* name_file);
-Store_Thefile(const char* name_file);
+Store_Thefile(const char* name_file, char* buff[]);
 menu_function(int num, const char* name_file);
-
+int frandNum(int min, int max);
 // FILE I/O
 
 void Open_New_File();
@@ -24,12 +26,16 @@ void Print_List_Files(const char* file_name);
 
 typedef struct node Node;
 typedef struct item Item;
+typedef struct text_file_data Text_File_Data;
 typedef Node* link;
 
 struct item {
 
+
 	char file_name_list[1000];
+	char line_text[1000];
 };
+
 
 struct node {
 
@@ -38,11 +44,7 @@ struct node {
 };
 
 //Queue Function Prototypes
-long int* fDataIndices(int numQuotes, const char* file_name);
-int fnumData(const char* file_name);
-int* fDataLength(int numQuotes, long int* quoteIndices);
-int GetDataFromFile(char* buff, int DataLength, int user_choose_the_order_of_data, int numQuotes, long int* quoteIndices, int* quoteLengths, const char* file_name);
-
+void Traveral_text(void);
 void InitQueue(void);
 int IsQueueEmpty(void);
 void AddToQueue(link);
