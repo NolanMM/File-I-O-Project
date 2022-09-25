@@ -68,12 +68,69 @@ void Traveral_text(void)
 	int i = 0;
 	link pn = pHead;
 	while (pn != NULL) {
-		printf("No.%d. Data is:  %s\n",i, pn->Data.line_text);
+		printf("No.%d. Data is:  %s\n",i, pn->Data.file_name_list);
 		pn = pn->pNext;
 		i++;
 	}
 }
 
+void traverse()
+{
+	if (pHead == NULL)
+	{
+		return;
+	}
+	printf("No.%d. Data is:  %s\n", pHead->Data.file_name_list);
+	traverse(pHead->pNext);
+
+}
+
+void deleteNode(char *text) {
+	// Since we know input node is not last node, so nextNode will not be null
+
+	link p = pHead;
+
+	while (strcmp(text, p->Data.file_name_list) != 0)
+	{
+		p = p->pNext;
+	}
+	
+	link temp = p->pNext;
+	strcpy(p->Data.file_name_list, temp->Data.file_name_list);
+	p->pNext = temp->pNext;
+	temp->pNext = NULL;
+	free(temp);
+}
+
+link printnode(link ptr)
+{
+	printf("No. % d.Data is : % s\n",ptr->Data.file_name_list);
+	return ptr;
+}
+
+link search(char* text)
+{
+
+	link current = pHead; // Initialize current
+	if (current == NULL) //Reached end of the list
+	{
+		printf("\n name not found in the database \n");
+		return NULL;
+	}
+
+	if (strcmp(current->Data.file_name_list, text) == 0)
+	{
+		printf("\n name found \n");
+		printf("\n details are -\n");
+		printnode(current);
+		return current;
+	}
+	else
+	{
+		current = current->pNext;
+		return search(text);
+	}
+}
 
 
 

@@ -53,10 +53,8 @@ Delete_function(const char* name_file)
 
 	fp = fopen(name_file, "r");
 
-	char delete_text[1000];
+	char delete_text[40];
 	link q;
-
-
 
 	if (fp == NULL)
 	{
@@ -82,11 +80,12 @@ Delete_function(const char* name_file)
 			return EXIT_FAILURE;
 		}
 	}
+	
 
 	for (int j = 0; j < i - 1; j++)
 	{
 		q = (link)malloc(sizeof(Node));      //Create the Node for the message
-		strcpy(q->Data.line_text, n[j]);
+		strcpy(q->Data.file_name_list, n[j]);
 		AddToQueue(q);
 	}
 
@@ -97,16 +96,7 @@ Delete_function(const char* name_file)
 
 	printf("\nPlease enter the order of data you want to delete:");
 	scanf("%s", &delete_text);
-
-
-
-
-	for ( h = 0; h < i - 1; h++)
-	{
-		printf("No.%d. Data is:  %s", h, n[h]);
-	}
-
-
+	search(delete_text);
 	free(n);
 
 	fclose(fp);
@@ -114,7 +104,10 @@ Delete_function(const char* name_file)
 
 Find_function(const char* name_file)
 {
-	
+	char* find_text;
+	printf("\nPlease enter the order of data you want to Find:");
+	scanf("%s", &find_text);
+	search(find_text);
 }
 
 Random_insert(const char* name_file)

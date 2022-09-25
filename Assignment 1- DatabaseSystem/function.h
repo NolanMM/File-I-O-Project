@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <time.h>
 #define MAX_DATA_LENGTH 1000
 #define MAX_TEXT_CHARACTERS 100000
@@ -28,12 +29,11 @@ typedef struct node Node;
 typedef struct item Item;
 typedef struct text_file_data Text_File_Data;
 typedef Node* link;
+void deleteNode(char*text);
 
 struct item {
 
-
 	char file_name_list[1000];
-	char line_text[1000];
 };
 
 
@@ -50,6 +50,10 @@ int IsQueueEmpty(void);
 void AddToQueue(link);
 link DeQueue(void);
 void Traveral(void);
-void Save_List(void);
+link printnode(link ptr);
+void Save_List(link pn);
+void traverse();
+link search(char* text);
+
 #pragma once
 #pragma once
