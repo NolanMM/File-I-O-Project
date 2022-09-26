@@ -160,7 +160,27 @@ Find_function(const char* name_file)
 
 Random_insert(const char* name_file)
 {
+	link p;
+	p = (link)malloc(sizeof(Node));
+	int num_lines = fnumData(name_file);
+	int random_index = Random(num_lines);
 
+	char input_user_want_to_input[100];
+
+	printf("Input the data you want to input\n");
+	scanf("%s", &input_user_want_to_input);
+
+	strcpy(p->Data.file_name_list, input_user_want_to_input);
+	
+	move(random_index, num_lines, p);
+	
+	printf("The linkled list now is\n");
+	Traveral();
+
+}
+int Random(int n)
+{
+	return rand() % (n + 1);
 }
 
 
