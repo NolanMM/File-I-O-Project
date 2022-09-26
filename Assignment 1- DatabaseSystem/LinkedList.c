@@ -132,5 +132,18 @@ link search(char* text)
 	}
 }
 
+link move(int key, int lines,link pn)
+{
+	link temp = pHead;
+	link temp_next_elements;
+	for (int i = key; i < lines; i++)
+	{
+		temp = pHead->pNext;
+	}
+
+	temp->pNext = pn;
+	pn->pNext = temp->pNext;
+	
+}
 
 

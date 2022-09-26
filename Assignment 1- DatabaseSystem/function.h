@@ -24,7 +24,7 @@ void Open_exist_File();
 void Print_List_Files(const char* file_name);
 
 // Linked List
-
+link move(int key, int lines, link pn);
 typedef struct node Node;
 typedef struct item Item;
 typedef struct text_file_data Text_File_Data;
